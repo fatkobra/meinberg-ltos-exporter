@@ -23,6 +23,8 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/prometheus/client_golang/prometheus"
+	versioncollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -41,7 +43,7 @@ type Config struct {
 // parseFlags parses command-line flags using kingpin
 func parseFlags() *Config {
 	app := kingpin.New("meinberg_ltos_exporter", "Prometheus exporter for Meinberg LTOS devices")
-	app.Version("0.1.0")
+	app.Version(Version)
 	app.HelpFlag.Short('h')
 
 	cfg := &Config{}
@@ -149,10 +151,12 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
 
 	logger.Info("Starting Meinberg LTOS Exporter",
-		"version", "0.1.0",
+		"version", Version,
 		"listen_addr", cfg.ListenAddr,
 		"listen_port", cfg.ListenPort,
 	)
+
+	prometheus.MustRegister(versioncollector.NewCollector("meinberg_exporter"))
 
 	// Create Meinberg API client
 	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
