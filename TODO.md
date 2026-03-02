@@ -7,8 +7,9 @@
 - [ ] Refactor code to make collector slimmer, possibly move API response parsing and validation code to client or even to a dedicated model
 - [ ] Verify units of all metrics (milliseconds vs seconds, kB vs bytes, etc.)
 - [ ] Testing with live M600 system
-- [ ] Release "first" version
-- [ ] Create more build artifacts (via Prometheus exporter common Makefile)
+- [x] Release "first" version
+- [x] Create more build artifacts
+- [ ] Create Docker images via Dockerfile
 - [ ] Add network and interface metrics
 - [ ] (?) Extend mock-server.go to provide separate HTTP port with delayed response (for timeout testing)
 - [ ] (?) Remove password command line option (b/c insecure and leaks to shell history)
