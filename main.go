@@ -72,9 +72,6 @@ func parseFlags() *Config {
 	app.Flag("auth-user", "Basic auth username").
 		StringVar(&cfg.AuthBasicUser)
 
-	app.Flag("auth-pass", "Basic auth password").
-		StringVar(&cfg.AuthBasicPass)
-
 	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
 		BoolVar(&cfg.IgnoreSSLVerify)
 
