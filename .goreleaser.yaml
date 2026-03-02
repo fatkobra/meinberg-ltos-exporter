@@ -1,12 +1,13 @@
 version: 2
-project_name: meinberg-ltos-exporter
+project_name: meinberg_ltos_exporter
 
 before:
   hooks:
     - go mod tidy
 
 builds:
-  - env:
+  - binary: meinberg_ltos_exporter
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -21,6 +22,22 @@ builds:
       - -X main.Revision={{.FullCommit}}
       - -X main.Branch={{.Branch}}
       - -X main.BuildDate={{.Date}}
+
+dockers_v2:
+  - id: meinberg_ltos_exporter_docker
+    ids: [meinberg_ltos_exporter]
+    images:
+      - "ghcr.io/raphaelthomas/meinberg_ltos_exporter"
+    tags:
+      - "{{.Version}}"
+      - "latest"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      org.opencontainers.image.title: "{{.ProjectName}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.version: "{{.Version}}"
 
 archives:
   - formats: [ 'tar.gz' ]
