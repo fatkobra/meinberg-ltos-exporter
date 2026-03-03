@@ -170,7 +170,7 @@ func main() {
 	// Create a simple index page
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprintf(w, `
+		if _, err := fmt.Fprintf(w, `
 <!DOCTYPE html>
 <html>
 <head>
@@ -182,7 +182,11 @@ func main() {
 	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from %s.</p>
 </body>
 </html>
-`, cfg.LTOSAPIURL)
+		`, cfg.LTOSAPIURL); err != nil {
+			logger.Error("Failed to write response", slog.String("error", err.Error()))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	})
 
 	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
