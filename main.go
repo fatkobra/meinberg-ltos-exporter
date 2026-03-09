@@ -73,7 +73,7 @@ func parseFlags() *Config {
 		StringVar(&cfg.AuthBasicPass)
 
 	app.Flag("timeout", "Timeout for HTTP requests to Meinberg device").
-		Default("10s").
+		Default("5s").
 		Envar(EnvPrefix + "TIMEOUT").
 		DurationVar(&cfg.Timeout)
 

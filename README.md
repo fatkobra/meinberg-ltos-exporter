@@ -52,7 +52,7 @@ Flags:
                                  URL of the Meinberg LTOS API ($MEINBERG_LTOS_EXPORTER_LTOS_API_URL)
       --auth-user=AUTH-USER      Basic auth username ($MEINBERG_LTOS_EXPORTER_AUTH_USER)
       --auth-pass=AUTH-PASS      Basic auth password ($MEINBERG_LTOS_EXPORTER_AUTH_PASS)
-      --timeout=10s              Timeout for HTTP requests to Meinberg device ($MEINBERG_LTOS_EXPORTER_TIMEOUT)
+      --timeout=5s               Timeout for HTTP requests to Meinberg device ($MEINBERG_LTOS_EXPORTER_TIMEOUT)
       --[no-]ignore-ssl-verify   Ignore SSL certificate verification ($MEINBERG_LTOS_EXPORTER_IGNORE_SSL_VERIFY)
       --log-level=info           Log level (debug, info, warn, error)
 ```
