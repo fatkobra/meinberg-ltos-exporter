@@ -19,7 +19,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -51,18 +50,22 @@ func parseFlags() *Config {
 	// Command-line flags with kingpin
 	app.Flag("listen-addr", "Address to listen on").
 		Default("localhost").
+		Envar("LISTEN_ADDR").
 		StringVar(&cfg.ListenAddr)
 
 	app.Flag("listen-port", "Port to listen on").
 		Default("10123").
+		Envar("LISTEN_PORT").
 		StringVar(&cfg.ListenPort)
 
 	app.Flag("ltos-api-url", "URL of the Meinberg LTOS API").
 		Required().
+		Envar("LTOS_API_URL").
 		StringVar(&cfg.LTOSAPIURL)
 
 	app.Flag("timeout", "Timeout for HTTP requests to Meinberg device").
 		Default("10s").
+		Envar("TIMEOUT").
 		DurationVar(&cfg.Timeout)
 
 	logLevelFlag := app.Flag("log-level", "Log level (debug, info, warn, error)").
@@ -70,9 +73,15 @@ func parseFlags() *Config {
 		Enum("debug", "info", "warn", "error")
 
 	app.Flag("auth-user", "Basic auth username").
+		Envar("AUTH_USER").
 		StringVar(&cfg.AuthBasicUser)
 
+	app.Flag("auth-pass", "Basic auth password").
+		Envar("AUTH_PASS").
+		StringVar(&cfg.AuthBasicPass)
+
 	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
+		Default("false").
 		BoolVar(&cfg.IgnoreSSLVerify)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -89,45 +98,6 @@ func parseFlags() *Config {
 		cfg.LogLevel = slog.LevelError
 	default:
 		cfg.LogLevel = slog.LevelInfo
-	}
-
-	// Override with environment variables if set
-	if url := os.Getenv("LTOS_API_URL"); url != "" {
-		cfg.LTOSAPIURL = url
-	}
-	if addr := os.Getenv("LISTEN_ADDR"); addr != "" {
-		cfg.ListenAddr = addr
-	}
-	if port := os.Getenv("LISTEN_PORT"); port != "" {
-		cfg.ListenPort = port
-	}
-	if timeout := os.Getenv("TIMEOUT"); timeout != "" {
-		if d, err := time.ParseDuration(timeout); err == nil {
-			cfg.Timeout = d
-		}
-	}
-	if level := os.Getenv("LOG_LEVEL"); level != "" {
-		switch level {
-		case "debug":
-			cfg.LogLevel = slog.LevelDebug
-		case "info":
-			cfg.LogLevel = slog.LevelInfo
-		case "warn":
-			cfg.LogLevel = slog.LevelWarn
-		case "error":
-			cfg.LogLevel = slog.LevelError
-		}
-	}
-	if user := os.Getenv("AUTH_USER"); user != "" {
-		cfg.AuthBasicUser = user
-	}
-	if pass := os.Getenv("AUTH_PASS"); pass != "" {
-		cfg.AuthBasicPass = pass
-	}
-	if ignoreSSL := os.Getenv("IGNORE_SSL_VERIFY"); ignoreSSL != "" {
-		if value, err := strconv.ParseBool(ignoreSSL); err == nil {
-			cfg.IgnoreSSLVerify = value
-		}
 	}
 
 	return cfg

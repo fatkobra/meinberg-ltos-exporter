@@ -46,13 +46,14 @@ Prometheus exporter for Meinberg LTOS devices
 Flags:
   -h, --[no-]help                Show context-sensitive help (also try --help-long and --help-man).
       --[no-]version             Show application version.
-      --listen-addr="localhost"  Address to listen on
-      --listen-port="10123"      Port to listen on
+      --listen-addr="localhost"  Address to listen on ($LISTEN_ADDR)
+      --listen-port="10123"      Port to listen on ($LISTEN_PORT)
       --ltos-api-url=LTOS-API-URL
-                                 URL of the Meinberg LTOS API
-      --timeout=10s              Timeout for HTTP requests to Meinberg device
+                                 URL of the Meinberg LTOS API ($LTOS_API_URL)
+      --timeout=10s              Timeout for HTTP requests to Meinberg device ($TIMEOUT)
       --log-level=info           Log level (debug, info, warn, error)
-      --auth-user=AUTH-USER      Basic auth username
+      --auth-user=AUTH-USER      Basic auth username ($AUTH_USER)
+      --auth-pass=AUTH-PASS      Basic auth password ($AUTH_PASS)
       --[no-]ignore-ssl-verify   Ignore SSL certificate verification
 ```
 
