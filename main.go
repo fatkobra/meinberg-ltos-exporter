@@ -49,12 +49,12 @@ func parseFlags() *Config {
 
 	EnvPrefix := "MEINBERG_LTOS_EXPORTER_"
 
-	app.Flag("listen-addr", "Address to listen on").
+	app.Flag("web.listen-address", "Address to listen on").
 		Default("localhost").
 		Envar(EnvPrefix + "LISTEN_ADDR").
 		StringVar(&cfg.ListenAddr)
 
-	app.Flag("listen-port", "Port to listen on").
+	app.Flag("web.listen-port", "Port to listen on").
 		Default("10123").
 		Envar(EnvPrefix + "LISTEN_PORT").
 		StringVar(&cfg.ListenPort)

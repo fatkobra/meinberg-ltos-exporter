@@ -46,8 +46,9 @@ Prometheus exporter for Meinberg LTOS devices
 Flags:
   -h, --[no-]help                Show context-sensitive help (also try --help-long and --help-man).
       --[no-]version             Show application version.
-      --listen-addr="localhost"  Address to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_ADDR)
-      --listen-port="10123"      Port to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_PORT)
+      --web.listen-address="localhost"
+                                 Address to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_ADDR)
+      --web.listen-port="10123"  Port to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_PORT)
       --ltos-api-url=LTOS-API-URL
                                  URL of the Meinberg LTOS API ($MEINBERG_LTOS_EXPORTER_LTOS_API_URL)
       --auth-user=AUTH-USER      Basic auth username ($MEINBERG_LTOS_EXPORTER_AUTH_USER)
