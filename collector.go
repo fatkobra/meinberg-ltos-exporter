@@ -16,6 +16,7 @@ package main
 
 import (
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -641,10 +642,17 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					assoc["clk-wander"].(float64),
 					host,
 				)
+				var leap float64
+				switch leapRaw := assoc["leap"].(type) {
+				case float64:
+					leap = leapRaw
+				case string:
+					leap, _ = strconv.ParseFloat(leapRaw, 64)
+				}
 				ch <- prometheus.MustNewConstMetric(
 					c.ntpLeapAnnounced.desc,
 					c.ntpLeapAnnounced.valueType,
-					assoc["leap"].(float64),
+					leap,
 					host,
 				)
 				// TODO convert weird timestamp into epoch
