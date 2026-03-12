@@ -131,7 +131,7 @@ func main() {
 
 	prometheus.MustRegister(versioncollector.NewCollector("meinberg_exporter"))
 
-	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
+	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
 	if err := registerMetrics(client, logger); err != nil {
 		logger.Error("Failed to register metrics", "error", err)

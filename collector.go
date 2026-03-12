@@ -392,11 +392,13 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements prometheus.Collector
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
+
 	host := "unknown"
 	upValue := 0.0
 	statusData, err := c.client.FetchStatus()
 	if err != nil {
-		c.logger.Debug("Failed to fetch status data", "error", err.Error())
+		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err.Error())
 	} else {
 		upValue = 1.0
 
@@ -829,6 +831,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		upValue,
 		host, c.client.Target(),
 	)
+
+	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 }
 
 // Register registers the collector with Prometheus

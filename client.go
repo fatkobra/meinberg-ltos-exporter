@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -28,6 +29,7 @@ import (
 
 // Client represents a Meinberg LTOS API client
 type Client struct {
+	logger        *slog.Logger
 	baseURL       string
 	timeout       time.Duration
 	authBasicUser string
@@ -95,8 +97,9 @@ func (c *Client) Target() string {
 }
 
 // NewClient creates a new Meinberg LTOS API client
-func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string, ignoreSSLVerify bool) *Client {
+func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string, ignoreSSLVerify bool, logger *slog.Logger) *Client {
 	return &Client{
+		logger:        logger,
 		baseURL:       baseURL,
 		timeout:       timeout,
 		authBasicUser: authBasicUser,
@@ -112,6 +115,8 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
 func (c *Client) FetchStatus() (map[string]any, error) {
+	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
+
 	req, err := http.NewRequest("GET", c.baseURL+"/api/status", nil)
 	if err != nil {
 		return nil, err
@@ -142,5 +147,6 @@ func (c *Client) FetchStatus() (map[string]any, error) {
 		return nil, err
 	}
 
+	c.logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
 	return data, nil
 }
