@@ -49,6 +49,8 @@ Flags:
       --web.listen-address="localhost"
                                  Address to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_ADDR)
       --web.listen-port="10123"  Port to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_PORT)
+      --web.telemetry-path="/metrics"
+                                 Path under which to expose metrics ($MEINBERG_LTOS_EXPORTER_METRICS_PATH)
       --ltos-api-url=LTOS-API-URL
                                  URL of the Meinberg LTOS API ($MEINBERG_LTOS_EXPORTER_LTOS_API_URL)
       --auth-user=AUTH-USER      Basic auth username ($MEINBERG_LTOS_EXPORTER_AUTH_USER)

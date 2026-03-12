@@ -31,6 +31,7 @@ import (
 type Config struct {
 	ListenAddr      string
 	ListenPort      string
+	MetricsPath     string
 	LTOSAPIURL      string
 	Timeout         time.Duration
 	LogLevel        slog.Level
@@ -58,6 +59,11 @@ func parseFlags() *Config {
 		Default("10123").
 		Envar(EnvPrefix + "LISTEN_PORT").
 		StringVar(&cfg.ListenPort)
+
+	app.Flag("web.telemetry-path", "Path under which to expose metrics").
+		Default("/metrics").
+		Envar(EnvPrefix + "METRICS_PATH").
+		StringVar(&cfg.MetricsPath)
 
 	app.Flag("ltos-api-url", "URL of the Meinberg LTOS API").
 		Required().
@@ -113,7 +119,6 @@ func registerMetrics(client *Client, logger *slog.Logger) error {
 func main() {
 	cfg := parseFlags()
 
-	// Initialize structured logger
 	logLevel := &slog.LevelVar{}
 	logLevel.Set(cfg.LogLevel)
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
@@ -126,22 +131,19 @@ func main() {
 
 	prometheus.MustRegister(versioncollector.NewCollector("meinberg_exporter"))
 
-	// Create Meinberg API client
 	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
 
-	// Register metrics
 	if err := registerMetrics(client, logger); err != nil {
 		logger.Error("Failed to register metrics", "error", err)
 		os.Exit(1)
 	}
 
-	// Register the /metrics handler
-	http.Handle("/metrics", promhttp.Handler())
+	http.Handle(cfg.MetricsPath, promhttp.Handler())
 
-	// Create a simple index page
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		if _, err := fmt.Fprintf(w, `
+	if cfg.MetricsPath != "/" && cfg.MetricsPath != "" {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			if _, err := fmt.Fprintf(w, `
 <!DOCTYPE html>
 <html>
 <head>
@@ -154,11 +156,12 @@ func main() {
 </body>
 </html>
 		`, cfg.LTOSAPIURL); err != nil {
-			logger.Error("Failed to write response", slog.String("error", err.Error()))
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-	})
+				logger.Error("Failed to write response", slog.String("error", err.Error()))
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		})
+	}
 
 	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
 	logger.Info("HTTP server listening", "address", listenAddr)
