@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type StatusResponse struct {
@@ -138,8 +139,40 @@ func (m *Mount) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type Notification struct {
+	Events []Event `json:"events"`
+}
+
+type Event struct {
+	Type              string
+	Name              string
+	LastTriggeredUnix float64
+}
+
+func (e *Event) UnmarshalJSON(data []byte) error {
+	aux := struct {
+		Type          string `json:"type"`
+		Name          string `json:"object-id"`
+		LastTriggered string `json:"last-triggered"`
+	}{}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return fmt.Errorf("failed to unmarshal event: %v", err)
+	}
+
+	e.Type = aux.Type
+	e.Name = aux.Name
+
+	if aux.LastTriggered != "never" {
+		if parsedTime, err := time.Parse("2006-01-02T15:04:05", aux.LastTriggered); err == nil {
+			e.LastTriggeredUnix = float64(parsedTime.Unix())
+		}
+	}
+
+	return nil
+}
+
 type (
-	Notification   map[string]any
 	Network        map[string]any
 	Chassis        map[string]any
 	NTPAssociation map[string]any

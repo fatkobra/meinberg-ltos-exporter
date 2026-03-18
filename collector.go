@@ -467,27 +467,14 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	)
 
 	// Parse notification events and emit metrics
-	notifications := status.Data.Notification
-	if events, ok := notifications["events"].([]any); ok {
-		for _, evt := range events {
-			event := evt.(map[string]any)
-			eventType := event["type"].(string)
-			eventName := event["object-id"].(string)
-			lastTriggered := event["last-triggered"].(string)
-
-			if lastTriggered != "never" {
-				parsedTime, err := time.Parse("2006-01-02T15:04:05", lastTriggered)
-				if err != nil {
-					c.logger.Debug("Failed to parse 'last-triggered' timestamp", "error", err.Error(), "last-triggered", lastTriggered)
-					continue
-				}
-				ch <- prometheus.MustNewConstMetric(
-					c.event.desc,
-					c.event.valueType,
-					float64(parsedTime.Unix()),
-					host, eventType, eventName,
-				)
-			}
+	for _, event := range status.Data.Notification.Events {
+		if event.LastTriggeredUnix > 0 {
+			ch <- prometheus.MustNewConstMetric(
+				c.event.desc,
+				c.event.valueType,
+				event.LastTriggeredUnix,
+				host, event.Type, event.Name,
+			)
 		}
 	}
 
