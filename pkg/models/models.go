@@ -26,7 +26,6 @@ type StatusData struct {
 	RestAPI      RestAPI          `json:"rest-api"`
 	System       System           `json:"system"`
 	Notification Notification     `json:"notification"`
-	Network      Network          `json:"network"`
 	Chassis0     Chassis          `json:"chassis0"`
 	NTP          []NTPAssociation `json:"ntp"`
 }
@@ -173,7 +172,6 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 }
 
 type (
-	Network        map[string]any
 	Chassis        map[string]any
 	NTPAssociation map[string]any
 )
