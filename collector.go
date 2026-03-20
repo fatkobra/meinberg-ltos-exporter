@@ -16,6 +16,7 @@ package main
 
 import (
 	"log/slog"
+	"math"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -499,10 +500,11 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			assoc.Stratum,
 			host, assoc.RefID, assoc.Name,
 		)
+		precisionSeconds := math.Pow(2, assoc.Precision)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpPrecision.desc,
 			c.ntpPrecision.valueType,
-			assoc.Precision,
+			precisionSeconds,
 			host, assoc.RefID, assoc.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
