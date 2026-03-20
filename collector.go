@@ -344,8 +344,8 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		ntpLeapSecond: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_leap_second",
-				"Meinberg NTP leap second (last or next) in seconds since epoch",
+				MetricPrefix+"ntp_leap_second_seconds",
+				"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
 				[]string{"host", "refid", "assoc"},
 				nil,
 			),
