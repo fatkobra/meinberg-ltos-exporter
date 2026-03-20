@@ -1,8 +1,10 @@
 # Prometheus Exporter for Meinberg LTOS
 
 > [!CAUTION]
-> This exporter is **experimental** and has only been tested against a Meinberg
-> M600 device with a `grc180` receiver and LTOS 7.10.008.
+> This exporter is **experimental** and has only been tested against the
+> following Meinberg devices:
+> - M600 with a `grc180` receiver and LTOS 7.10.008.
+> - M300 with a `pzf511` receiver and LTOS 7.06.014-light
 
 > [!TIP]
 > Please provide feedback through GitHub issues, include the
