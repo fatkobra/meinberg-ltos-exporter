@@ -283,7 +283,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_stratum",
 				"Meinberg NTP stratum level",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -292,7 +292,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_precision_seconds",
 				"Meinberg NTP precision in seconds",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -301,7 +301,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_root_delay_seconds",
 				"Meinberg NTP root delay in seconds",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -310,7 +310,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_root_dispersion_seconds",
 				"Meinberg NTP root dispersion in seconds",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -319,7 +319,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_clock_jitter_seconds",
 				"Meinberg NTP clock jitter in seconds",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -328,7 +328,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_clock_wander_seconds_per_second",
 				"Meinberg NTP clock wander in seconds per second",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -337,7 +337,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_leap_announced",
 				"Meinberg NTP leap second announced status (1 = leap second announced, 0 = no leap second announced)",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -346,7 +346,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_leap_second",
 				"Meinberg NTP leap second (last or next) in seconds since epoch",
-				[]string{"host"},
+				[]string{"host", "refid"},
 				nil,
 			),
 			valueType: prometheus.CounterValue,
@@ -499,49 +499,49 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			c.ntpStratum.desc,
 			c.ntpStratum.valueType,
 			assoc.Stratum,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpPrecision.desc,
 			c.ntpPrecision.valueType,
 			assoc.Precision,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpRootDelay.desc,
 			c.ntpRootDelay.valueType,
 			assoc.RootDelay,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpRootDispersion.desc,
 			c.ntpRootDispersion.valueType,
 			assoc.RootDispersion,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpClockJitter.desc,
 			c.ntpClockJitter.valueType,
 			assoc.ClockJitter,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpClockWander.desc,
 			c.ntpClockWander.valueType,
 			assoc.ClockWander,
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpLeapAnnounced.desc,
 			c.ntpLeapAnnounced.valueType,
 			float64(assoc.LeapIndicator),
-			host,
+			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpLeapSecond.desc,
 			c.ntpLeapSecond.valueType,
 			float64(assoc.LeapSecondUnix),
-			host,
+			host, assoc.RefID,
 		)
 	}
 
