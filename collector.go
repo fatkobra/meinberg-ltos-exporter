@@ -424,7 +424,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		c.systemInfo.desc,
 		c.systemInfo.valueType,
 		1.0,
-		host, status.SystemInformation.Model, status.SystemInformation.SerialNumber,
+		host, status.SystemInformation.Model, status.SystemInformation.SerialNumber.String(),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.systemUptimeSeconds.desc,
@@ -555,7 +555,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				c.systemCPUInfo.desc,
 				c.systemCPUInfo.valueType,
 				1.0,
-				host, slot.Module.Info.Model, slot.Module.Info.SerialNumber,
+				host, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(),
 			)
 		} else if slot.Type == "clk" {
 			oscillatorType := "unknown"
@@ -566,7 +566,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				c.receiverInfo.desc,
 				c.receiverInfo.valueType,
 				1.0,
-				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber, slot.Module.Info.SoftwareRevision, oscillatorType,
+				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType,
 			)
 
 			if slot.Module.Satellites != nil {

@@ -16,10 +16,10 @@ type StatusResponse struct {
 }
 
 type SystemInformation struct {
-	Version      string `json:"version"`
-	SerialNumber string `json:"serial-number"`
-	Hostname     string `json:"hostname"`
-	Model        string `json:"model"`
+	Version      string       `json:"version"`
+	SerialNumber SerialNumber `json:"serial-number"`
+	Hostname     string       `json:"hostname"`
+	Model        string       `json:"model"`
 }
 
 type StatusData struct {
@@ -193,10 +193,33 @@ type SlotModule struct {
 }
 
 type SlotModuleInfo struct {
-	Model            string `json:"model"`
-	SerialNumber     string `json:"serial-number"`
-	SoftwareRevision string `json:"software-revision"`
-	FirmwareImage    string `json:"firmware-image"`
+	Model            string       `json:"model"`
+	SerialNumber     SerialNumber `json:"serial-number"`
+	SoftwareRevision string       `json:"software-revision"`
+	FirmwareImage    string       `json:"firmware-image"`
+}
+
+type SerialNumber string
+
+func (s *SerialNumber) UnmarshalJSON(data []byte) error {
+	var raw string
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return fmt.Errorf("failed to unmarshal serial number: %v", err)
+	}
+
+	sn := strings.TrimSpace(raw)
+	switch strings.ToLower(sn) {
+	case "", "unknown", "n/a", "na", "none":
+		*s = ""
+	default:
+		*s = SerialNumber(sn)
+	}
+
+	return nil
+}
+
+func (s SerialNumber) String() string {
+	return string(s)
 }
 
 type SyncStatus struct {
