@@ -16,8 +16,6 @@ package main
 
 import (
 	"log/slog"
-	"strconv"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -466,7 +464,6 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		host,
 	)
 
-	// Parse notification events and emit metrics
 	for _, event := range status.Data.Notification.Events {
 		if event.LastTriggeredUnix > 0 {
 			ch <- prometheus.MustNewConstMetric(
@@ -478,7 +475,6 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 
-	// Parse and emit storage metrics
 	for _, mount := range status.Data.System.Mounts {
 		ch <- prometheus.MustNewConstMetric(
 			c.storageTotal.desc,
@@ -494,69 +490,57 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		)
 	}
 
-	// Parse and emit NTP service metrics
-	ntpData := status.Data.NTP
-	for _, assoc := range ntpData {
-		if assoc["object-id"].(string) != "sys" {
+	for _, assoc := range status.Data.NTP {
+		if !assoc.IsSys() {
 			continue
 		}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpStratum.desc,
 			c.ntpStratum.valueType,
-			assoc["stratum"].(float64),
+			assoc.Stratum,
 			host,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpPrecision.desc,
 			c.ntpPrecision.valueType,
-			assoc["precision"].(float64),
+			assoc.Precision,
 			host,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpRootDelay.desc,
 			c.ntpRootDelay.valueType,
-			assoc["rootdelay"].(float64),
+			assoc.RootDelay,
 			host,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpRootDispersion.desc,
 			c.ntpRootDispersion.valueType,
-			assoc["rootdisp"].(float64),
+			assoc.RootDispersion,
 			host,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpClockJitter.desc,
 			c.ntpClockJitter.valueType,
-			assoc["clk-jitter"].(float64),
+			assoc.ClockJitter,
 			host,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpClockWander.desc,
 			c.ntpClockWander.valueType,
-			assoc["clk-wander"].(float64),
+			assoc.ClockWander,
 			host,
 		)
-		var leap float64
-		switch leapRaw := assoc["leap"].(type) {
-		case float64:
-			leap = leapRaw
-		case string:
-			leap, _ = strconv.ParseFloat(leapRaw, 64)
-		}
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpLeapAnnounced.desc,
 			c.ntpLeapAnnounced.valueType,
-			leap,
+			float64(assoc.LeapIndicator),
 			host,
 		)
-		// TODO convert weird timestamp into epoch
-		leapSecRaw := assoc["leapsec"].(string)
-		leapSecTime, _ := time.Parse("200601021504", leapSecRaw)
 		ch <- prometheus.MustNewConstMetric(
 			c.ntpLeapSecond.desc,
 			c.ntpLeapSecond.valueType,
-			float64(leapSecTime.Unix()),
+			float64(assoc.LeapSecondUnix),
 			host,
 		)
 	}
