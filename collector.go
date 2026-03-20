@@ -35,37 +35,37 @@ type Collector struct {
 	logger *slog.Logger
 
 	// Metric descriptors
-	up                    typedDesc
-	buildInfo             typedDesc
-	systemInfo            typedDesc
-	systemUptimeSeconds   typedDesc
-	systemCPUInfo         typedDesc
-	systemCPULoadAvg      typedDesc
-	systemMemoryBytes     typedDesc
-	systemMemoryFreeBytes typedDesc
-	event                 typedDesc
-	storageTotal          typedDesc
-	storageUsed           typedDesc
-	receiverInfo          typedDesc
-	rcvGNSSSatInView      typedDesc
-	rcvGNSSSatGood        typedDesc
-	rcvGNSSLatitude       typedDesc
-	rcvGNSSLongitude      typedDesc
-	rcvGNSSAltitude       typedDesc
-	rcvAntConnected       typedDesc
-	rcvAntShortCircuit    typedDesc
-	rcvSynced             typedDesc
-	rcvTracking           typedDesc
-	rcvColdBoot           typedDesc
-	rcvWarmBoot           typedDesc
-	ntpStratum            typedDesc
-	ntpPrecision          typedDesc
-	ntpRootDelay          typedDesc
-	ntpRootDispersion     typedDesc
-	ntpClockJitter        typedDesc
-	ntpClockWander        typedDesc
-	ntpLeapIndicator      typedDesc
-	ntpLeapSecond         typedDesc
+	up                        typedDesc
+	buildInfo                 typedDesc
+	systemInfo                typedDesc
+	systemUptimeSeconds       typedDesc
+	systemCPUInfo             typedDesc
+	systemCPULoadAvg          typedDesc
+	systemMemoryBytes         typedDesc
+	systemMemoryFreeBytes     typedDesc
+	event                     typedDesc
+	storageTotal              typedDesc
+	storageUsed               typedDesc
+	clkInfo                   typedDesc
+	clkRcvGNSSSatInView       typedDesc
+	clkRcvGNSSSatGood         typedDesc
+	clkRcvGNSSLatitude        typedDesc
+	clkRcvGNSSLongitude       typedDesc
+	clkRcvGNSSAltitude        typedDesc
+	clkRcvGNSSAntConnected    typedDesc
+	clkRcvGNSSAntShortCircuit typedDesc
+	clkRcvGNSSSynced          typedDesc
+	clkRcvGNSSTracking        typedDesc
+	clkRcvGNSSColdBoot        typedDesc
+	clkRcvGNSSWarmBoot        typedDesc
+	ntpStratum                typedDesc
+	ntpPrecision              typedDesc
+	ntpRootDelay              typedDesc
+	ntpRootDispersion         typedDesc
+	ntpClockJitter            typedDesc
+	ntpClockWander            typedDesc
+	ntpLeapIndicator          typedDesc
+	ntpLeapSecond             typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -172,110 +172,110 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		receiverInfo: typedDesc{
+		clkInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_info",
-				"Meinberg receiver module information as labels (model, serial number, software revision, oscillator type)",
-				[]string{"host", "slot_id", "model", "serial_number", "software_revision", "oscillator_type"},
+				MetricPrefix+"clock_module_info",
+				"Meinberg clock module information as labels (model, serial number, software revision, oscillator type)",
+				[]string{"host", "clock_id", "model", "serial_number", "software_revision", "oscillator_type"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvGNSSSatInView: typedDesc{
+		clkRcvGNSSSatInView: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_satellites_in_view",
-				"Meinberg GNSS receiver satellites in view",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_satellites_in_view",
+				"Number of satellites (theoretically) in view of the GNSS receiver",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvGNSSSatGood: typedDesc{
+		clkRcvGNSSSatGood: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_satellites_good",
-				"Meinberg GNSS receiver good satellites",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_satellites_good",
+				"Number of good satellites for the GNSS receiver",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvGNSSLatitude: typedDesc{
+		clkRcvGNSSLatitude: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_latitude_degrees",
+				MetricPrefix+"clock_receiver_gnss_latitude_degrees",
 				"Meinberg GNSS receiver latitude",
-				[]string{"host", "slot_id"},
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvGNSSLongitude: typedDesc{
+		clkRcvGNSSLongitude: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_longitude_degrees",
+				MetricPrefix+"clock_receiver_gnss_longitude_degrees",
 				"Meinberg GNSS receiver longitude",
-				[]string{"host", "slot_id"},
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvGNSSAltitude: typedDesc{
+		clkRcvGNSSAltitude: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_altitude_meters",
+				MetricPrefix+"clock_receiver_gnss_altitude_meters",
 				"Meinberg GNSS receiver altitude",
-				[]string{"host", "slot_id"},
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvAntConnected: typedDesc{
+		clkRcvGNSSAntConnected: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_antenna_connected",
+				MetricPrefix+"clock_receiver_gnss_antenna_connected",
 				"Meinberg GNSS receiver antenna connected (1 = connected, 0 = not connected)",
-				[]string{"host", "slot_id"},
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvAntShortCircuit: typedDesc{
+		clkRcvGNSSAntShortCircuit: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_gnss_antenna_short_circuit",
+				MetricPrefix+"clock_receiver_gnss_antenna_short_circuit",
 				"Meinberg GNSS receiver antenna short circuit detected (1 = short circuit, 0 = no short circuit)",
-				[]string{"host", "slot_id"},
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvSynced: typedDesc{
+		clkRcvGNSSSynced: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_synced",
-				"Meinberg receiver synchronization status (1 = synced, 0 = not synced)",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_synchronized",
+				"Meinberg GNSS receiver synchronization status (1 = synced, 0 = not synced)",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvTracking: typedDesc{
+		clkRcvGNSSTracking: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_tracking",
-				"Meinberg receiver tracking status (1 = tracking, 0 = not tracking)",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_tracking",
+				"Meinberg GNSS receiver tracking status (1 = tracking, 0 = not tracking)",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvColdBoot: typedDesc{
+		clkRcvGNSSColdBoot: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_cold_boot",
-				"Meinberg receiver cold boot status (1 = cold boot, 0 = not cold boot)",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_cold_boot",
+				"GNSS receiver cold boot status (1 = cold boot, 0 = not cold boot)",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		rcvWarmBoot: typedDesc{
+		clkRcvGNSSWarmBoot: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"receiver_warm_boot",
-				"Meinberg receiver warm boot status (1 = warm boot, 0 = not warm boot)",
-				[]string{"host", "slot_id"},
+				MetricPrefix+"clock_receiver_gnss_warm_boot",
+				"GNSS receiver warm boot status (1 = warm boot, 0 = not warm boot)",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -345,7 +345,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		ntpLeapSecond: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_leap_second_seconds",
+				MetricPrefix+"ntp_leap_second_timestamp_seconds",
 				"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
 				[]string{"host", "refid", "assoc"},
 				nil,
@@ -367,18 +367,18 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.event.desc
 	ch <- c.storageTotal.desc
 	ch <- c.storageUsed.desc
-	ch <- c.receiverInfo.desc
-	ch <- c.rcvGNSSSatInView.desc
-	ch <- c.rcvGNSSSatGood.desc
-	ch <- c.rcvGNSSLatitude.desc
-	ch <- c.rcvGNSSLongitude.desc
-	ch <- c.rcvGNSSAltitude.desc
-	ch <- c.rcvAntConnected.desc
-	ch <- c.rcvAntShortCircuit.desc
-	ch <- c.rcvSynced.desc
-	ch <- c.rcvTracking.desc
-	ch <- c.rcvColdBoot.desc
-	ch <- c.rcvWarmBoot.desc
+	ch <- c.clkInfo.desc
+	ch <- c.clkRcvGNSSSatInView.desc
+	ch <- c.clkRcvGNSSSatGood.desc
+	ch <- c.clkRcvGNSSLatitude.desc
+	ch <- c.clkRcvGNSSLongitude.desc
+	ch <- c.clkRcvGNSSAltitude.desc
+	ch <- c.clkRcvGNSSAntConnected.desc
+	ch <- c.clkRcvGNSSAntShortCircuit.desc
+	ch <- c.clkRcvGNSSSynced.desc
+	ch <- c.clkRcvGNSSTracking.desc
+	ch <- c.clkRcvGNSSColdBoot.desc
+	ch <- c.clkRcvGNSSWarmBoot.desc
 	ch <- c.ntpStratum.desc
 	ch <- c.ntpPrecision.desc
 	ch <- c.ntpRootDelay.desc
@@ -563,40 +563,40 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				oscillatorType = slot.Module.SyncStatus.OscillatorType
 			}
 			ch <- prometheus.MustNewConstMetric(
-				c.receiverInfo.desc,
-				c.receiverInfo.valueType,
+				c.clkInfo.desc,
+				c.clkInfo.valueType,
 				1.0,
 				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType,
 			)
 
 			if slot.Module.Satellites != nil {
 				ch <- prometheus.MustNewConstMetric(
-					c.rcvGNSSSatInView.desc,
-					c.rcvGNSSSatInView.valueType,
+					c.clkRcvGNSSSatInView.desc,
+					c.clkRcvGNSSSatInView.valueType,
 					slot.Module.Satellites.InView,
 					host, slot.Name,
 				)
 				ch <- prometheus.MustNewConstMetric(
-					c.rcvGNSSSatGood.desc,
-					c.rcvGNSSSatGood.valueType,
+					c.clkRcvGNSSSatGood.desc,
+					c.clkRcvGNSSSatGood.valueType,
 					slot.Module.Satellites.Good,
 					host, slot.Name,
 				)
 				ch <- prometheus.MustNewConstMetric(
-					c.rcvGNSSLatitude.desc,
-					c.rcvGNSSLatitude.valueType,
+					c.clkRcvGNSSLatitude.desc,
+					c.clkRcvGNSSLatitude.valueType,
 					slot.Module.Satellites.Latitude,
 					host, slot.Name,
 				)
 				ch <- prometheus.MustNewConstMetric(
-					c.rcvGNSSLongitude.desc,
-					c.rcvGNSSLongitude.valueType,
+					c.clkRcvGNSSLongitude.desc,
+					c.clkRcvGNSSLongitude.valueType,
 					slot.Module.Satellites.Longitude,
 					host, slot.Name,
 				)
 				ch <- prometheus.MustNewConstMetric(
-					c.rcvGNSSAltitude.desc,
-					c.rcvGNSSAltitude.valueType,
+					c.clkRcvGNSSAltitude.desc,
+					c.clkRcvGNSSAltitude.valueType,
 					slot.Module.Satellites.Altitude,
 					host, slot.Name,
 				)
@@ -609,8 +609,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						antConnected = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvAntConnected.desc,
-						c.rcvAntConnected.valueType,
+						c.clkRcvGNSSAntConnected.desc,
+						c.clkRcvGNSSAntConnected.valueType,
 						antConnected,
 						host, slot.Name,
 					)
@@ -620,8 +620,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						antShortCircuit = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvAntShortCircuit.desc,
-						c.rcvAntShortCircuit.valueType,
+						c.clkRcvGNSSAntShortCircuit.desc,
+						c.clkRcvGNSSAntShortCircuit.valueType,
 						antShortCircuit,
 						host, slot.Name,
 					)
@@ -633,8 +633,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						synced = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvSynced.desc,
-						c.rcvSynced.valueType,
+						c.clkRcvGNSSSynced.desc,
+						c.clkRcvGNSSSynced.valueType,
 						synced,
 						host, slot.Name,
 					)
@@ -644,8 +644,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						tracking = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvTracking.desc,
-						c.rcvTracking.valueType,
+						c.clkRcvGNSSTracking.desc,
+						c.clkRcvGNSSTracking.valueType,
 						tracking,
 						host, slot.Name,
 					)
@@ -655,8 +655,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						warmBoot = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvWarmBoot.desc,
-						c.rcvWarmBoot.valueType,
+						c.clkRcvGNSSWarmBoot.desc,
+						c.clkRcvGNSSWarmBoot.valueType,
 						warmBoot,
 						host, slot.Name,
 					)
@@ -666,8 +666,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						coldBoot = 1.0
 					}
 					ch <- prometheus.MustNewConstMetric(
-						c.rcvColdBoot.desc,
-						c.rcvColdBoot.valueType,
+						c.clkRcvGNSSColdBoot.desc,
+						c.clkRcvGNSSColdBoot.valueType,
 						coldBoot,
 						host, slot.Name,
 					)
