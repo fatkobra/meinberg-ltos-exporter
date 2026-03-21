@@ -129,7 +129,7 @@ func main() {
 	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
 	prometheus.MustRegister(collector.NewCollector(client, logger))
-	prometheus.MustRegister(versioncollector.NewCollector(collector.MetricPrefix + "exporter"))
+	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
 
 	http.Handle(cfg.MetricsPath, promhttp.Handler())
 

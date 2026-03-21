@@ -22,7 +22,7 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
 
-const MetricPrefix = "meinberg_ltos_"
+const MetricNamespace = "meinberg_ltos"
 
 // typedDesc combines a prometheus.Desc with its value type for cleaner code
 type typedDesc struct {
@@ -55,7 +55,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 		logger: logger,
 		up: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"up",
+				prometheus.BuildFQName(MetricNamespace, "", "up"),
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
 				[]string{"host", "target"},
 				nil,

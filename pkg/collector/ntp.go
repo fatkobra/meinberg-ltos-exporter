@@ -7,12 +7,14 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const ntpSubsystem = "ntp"
+
 var variableLabelsNTP = []string{"host", "refid", "assoc"}
 
 var (
 	ntpStratum = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_stratum",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "stratum"),
 			"Meinberg NTP stratum level",
 			variableLabelsNTP,
 			nil,
@@ -21,7 +23,7 @@ var (
 	}
 	ntpPrecision = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_precision_seconds",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "precision_seconds"),
 			"Meinberg NTP precision in seconds",
 			variableLabelsNTP,
 			nil,
@@ -30,7 +32,7 @@ var (
 	}
 	ntpRootDelay = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_root_delay_seconds",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "root_delay_seconds"),
 			"Meinberg NTP root delay in seconds",
 			variableLabelsNTP,
 			nil,
@@ -39,7 +41,7 @@ var (
 	}
 	ntpRootDispersion = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_root_dispersion_seconds",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "root_dispersion_seconds"),
 			"Meinberg NTP root dispersion in seconds",
 			variableLabelsNTP,
 			nil,
@@ -48,7 +50,7 @@ var (
 	}
 	ntpClockJitter = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_clock_jitter_seconds",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "clock_jitter_seconds"),
 			"Meinberg NTP clock jitter in seconds",
 			variableLabelsNTP,
 			nil,
@@ -57,7 +59,7 @@ var (
 	}
 	ntpClockWander = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_clock_wander_seconds_per_second",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "clock_wander_seconds_per_second"),
 			"Meinberg NTP clock wander in seconds per second",
 			variableLabelsNTP,
 			nil,
@@ -66,7 +68,7 @@ var (
 	}
 	ntpLeapIndicator = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_leap_indicator",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "leap_indicator"),
 			"Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
 			variableLabelsNTP,
 			nil,
@@ -75,7 +77,7 @@ var (
 	}
 	ntpLeapSecond = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"ntp_leap_second_timestamp_seconds",
+			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "leap_second_timestamp_seconds"),
 			"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
 			variableLabelsNTP,
 			nil,

@@ -5,10 +5,12 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const systemSubsystem = "system"
+
 var (
 	buildInfo = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"build_info",
+			prometheus.BuildFQName(MetricNamespace, "", "build_info"),
 			"Meinberg device build information as labels (e.g., API version, firmware version, host)",
 			[]string{"host", "api_version", "firmware_version"},
 			nil,
@@ -17,7 +19,7 @@ var (
 	}
 	systemInfo = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_info",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "info"),
 			"Meinberg system information as labels (e.g., model, serial number, host)",
 			[]string{"host", "model", "serial_number"},
 			nil,
@@ -26,7 +28,7 @@ var (
 	}
 	systemCPUInfo = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_cpu_info",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "cpu_info"),
 			"CPU information as labels (model, serial, etc.)",
 			[]string{"host", "model", "serial_number"},
 			nil,
@@ -35,7 +37,7 @@ var (
 	}
 	systemUptimeSeconds = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_uptime_seconds",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "uptime_seconds"),
 			"System uptime in seconds",
 			[]string{"host"},
 			nil,
@@ -44,7 +46,7 @@ var (
 	}
 	systemCPULoadAvg = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_cpu_load_avg",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "cpu_load_avg"),
 			"CPU load averaged over 1, 5, and 15 minutes",
 			[]string{"host", "period"},
 			nil,
@@ -53,7 +55,7 @@ var (
 	}
 	systemMemoryBytes = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_memory_bytes",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "memory_bytes"),
 			"Total memory in bytes",
 			[]string{"host"},
 			nil,
@@ -62,7 +64,7 @@ var (
 	}
 	systemMemoryFreeBytes = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"system_memory_free_bytes",
+			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "memory_free_bytes"),
 			"Free memory in bytes",
 			[]string{"host"},
 			nil,

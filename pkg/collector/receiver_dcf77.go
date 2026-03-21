@@ -5,10 +5,12 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const rcvDCF77Subsystem = "clock_receiver_dcf77"
+
 var (
 	clkRcvDCF77FieldStrength = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_receiver_dcf77_field_strength",
+			prometheus.BuildFQName(MetricNamespace, rcvDCF77Subsystem, "field_strength"),
 			"DCF77 receiver field strength",
 			[]string{"host", "clock_id"},
 			nil,
@@ -17,7 +19,7 @@ var (
 	}
 	clkRcvDCF77Correlation = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_receiver_dcf77_correlation",
+			prometheus.BuildFQName(MetricNamespace, rcvDCF77Subsystem, "correlation"),
 			"DCF77 receiver correlation",
 			[]string{"host", "clock_id"},
 			nil,

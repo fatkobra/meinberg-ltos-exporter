@@ -5,10 +5,12 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const clockSubsystem = "clock"
+
 var (
 	clkInfo = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_info",
+			prometheus.BuildFQName(MetricNamespace, clockSubsystem, "info"),
 			"Meinberg clock module information as labels (model, serial number, software revision, oscillator type)",
 			[]string{"host", "clock_id", "model", "serial_number", "software_revision", "oscillator_type"},
 			nil,
@@ -17,7 +19,7 @@ var (
 	}
 	clkSyncStatus = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_synchronized",
+			prometheus.BuildFQName(MetricNamespace, clockSubsystem, "synchronized"),
 			"Meinberg clock synchronization status (1 = synchronized, 0 = not synchronized)",
 			[]string{"host", "clock_id"},
 			nil,
@@ -26,7 +28,7 @@ var (
 	}
 	clkOscillatorWarmedUp = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_oscillator_warmed_up",
+			prometheus.BuildFQName(MetricNamespace, clockSubsystem, "oscillator_warmed_up"),
 			"Meinberg clock oscillator warmed up status (1 = warmed up, 0 = not warmed up)",
 			[]string{"host", "clock_id"},
 			nil,
@@ -35,7 +37,7 @@ var (
 	}
 	clkEstTimeQuality = typedDesc{
 		desc: prometheus.NewDesc(
-			MetricPrefix+"clock_estimated_time_quality_seconds",
+			prometheus.BuildFQName(MetricNamespace, clockSubsystem, "estimated_time_quality_seconds"),
 			"Estimated upper bound in seconds on the time quality of the clock",
 			[]string{"host", "clock_id"},
 			nil,

@@ -5,9 +5,11 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const notificationSubsystem = "notification"
+
 var eventLastTriggered = typedDesc{
 	desc: prometheus.NewDesc(
-		MetricPrefix+"event_last_triggered_seconds",
+		prometheus.BuildFQName(MetricNamespace, "", "event_last_triggered_seconds"),
 		"When an event last occurred as seconds since UNIX epoch (0 if never triggered)",
 		[]string{"host", "type", "event"},
 		nil,
