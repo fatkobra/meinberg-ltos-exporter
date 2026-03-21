@@ -132,7 +132,7 @@ func main() {
 		"listen_port", cfg.ListenPort,
 	)
 
-	prometheus.MustRegister(versioncollector.NewCollector("meinberg_exporter"))
+	prometheus.MustRegister(versioncollector.NewCollector(collector.MetricPrefix + "exporter"))
 
 	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
