@@ -112,7 +112,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				[]string{"host"},
 				nil,
 			),
-			valueType: prometheus.CounterValue,
+			valueType: prometheus.GaugeValue,
 		},
 		systemCPUInfo: typedDesc{
 			desc: prometheus.NewDesc(
@@ -157,7 +157,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				[]string{"host", "type", "event"},
 				nil,
 			),
-			valueType: prometheus.CounterValue,
+			valueType: prometheus.GaugeValue,
 		},
 		storageTotal: typedDesc{
 			desc: prometheus.NewDesc(
@@ -400,7 +400,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				[]string{"host", "refid", "assoc"},
 				nil,
 			),
-			valueType: prometheus.CounterValue,
+			valueType: prometheus.GaugeValue,
 		},
 	}
 }
