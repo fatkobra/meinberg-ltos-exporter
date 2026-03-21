@@ -17,6 +17,7 @@ package collector
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
@@ -28,10 +29,11 @@ const (
 )
 
 type Collector struct {
-	client    *ltosapi.Client
-	logger    *slog.Logger
-	up        typedDesc
-	buildInfo typedDesc
+	client         *ltosapi.Client
+	logger         *slog.Logger
+	up             typedDesc
+	scrapeDuration typedDesc
+	buildInfo      typedDesc
 }
 
 func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
@@ -42,7 +44,16 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(MetricNamespace, rootSubsystem, "up"),
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
-				[]string{"host", "target"},
+				[]string{"target"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		scrapeDuration: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(MetricNamespace, rootSubsystem, "scrape_duration_seconds"),
+				"Duration of the scrape of the Meinberg LTOS device in seconds",
+				[]string{"target"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -51,7 +62,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(MetricNamespace, rootSubsystem, "build_info"),
 				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
-				[]string{"host", "api_version", "firmware_version"},
+				[]string{"target", "host", "api_version", "firmware_version"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -61,6 +72,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up.desc
+	ch <- c.scrapeDuration.desc
 	ch <- c.buildInfo.desc
 
 	describeSystem(ch)
@@ -73,14 +85,16 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
-
-	host := "unknown"
+	start := time.Now()
 	up := 0.0
 
 	defer func() {
-		ch <- c.up.mustNewConstMetric(up, host, c.client.Target())
+		seconds := time.Since(start).Seconds()
+		ch <- c.scrapeDuration.mustNewConstMetric(seconds, c.client.Target())
+		ch <- c.up.mustNewConstMetric(up, c.client.Target())
 	}()
+
+	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 
 	status, err := c.client.FetchStatus()
 	if err != nil {
@@ -89,8 +103,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	up = 1.0
-	host = status.SystemInformation.Hostname
-	ch <- c.buildInfo.mustNewConstMetric(1.0, host, status.Data.RestAPI.Version, status.SystemInformation.Version)
+	host := status.SystemInformation.Hostname
+	ch <- c.buildInfo.mustNewConstMetric(1.0, c.client.Target(), host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
 	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.Chassis.Slots)
 	c.collectNotification(ch, host, status.Data.Notification.Events)

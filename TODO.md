@@ -14,7 +14,7 @@
 - [x] Create Docker images via Dockerfile
 - [x] Add (more) (debug) logging
 - [ ] Add network and interface metrics
-- [ ] Add scrape_duration_seconds metric
+- [x] Add scrape_duration_seconds metric
 - [ ] add non-sys NTP metrics
 - [ ] add unit tests
 - [ ] add mock DCF77 response for test fixtures
