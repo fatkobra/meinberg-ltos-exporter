@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package collector implements the Prometheus collector for Meinberg LTOS metrics
 package collector
 
 import (
@@ -28,6 +29,10 @@ const MetricPrefix = "meinberg_ltos_"
 type typedDesc struct {
 	desc      *prometheus.Desc
 	valueType prometheus.ValueType
+}
+
+func (td typedDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
+	return prometheus.MustNewConstMetric(td.desc, td.valueType, value, labels...)
 }
 
 // Collector implements prometheus.Collector for Meinberg metrics
@@ -452,12 +457,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	up := 0.0
 
 	defer func() {
-		ch <- prometheus.MustNewConstMetric(
-			c.up.desc,
-			c.up.valueType,
-			up,
-			host, c.client.Target(),
-		)
+		ch <- c.up.mustNewConstMetric(up, host, c.client.Target())
 	}()
 
 	status, err := c.client.FetchStatus()
@@ -468,80 +468,23 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	up = 1.0
 	host = status.SystemInformation.Hostname
+	ch <- c.buildInfo.mustNewConstMetric(1.0, host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.buildInfo.desc,
-		c.buildInfo.valueType,
-		1.0,
-		host, status.Data.RestAPI.Version, status.SystemInformation.Version,
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemInfo.desc,
-		c.systemInfo.valueType,
-		1.0,
-		host, status.SystemInformation.Model, status.SystemInformation.SerialNumber.String(),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemUptimeSeconds.desc,
-		c.systemUptimeSeconds.valueType,
-		status.Data.System.UptimeSeconds,
-		host,
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		c.systemCPULoadAvg.desc,
-		c.systemCPULoadAvg.valueType,
-		status.Data.System.CPULoad.Load1,
-		host, "1",
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemCPULoadAvg.desc,
-		c.systemCPULoadAvg.valueType,
-		status.Data.System.CPULoad.Load5,
-		host, "5",
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemCPULoadAvg.desc,
-		c.systemCPULoadAvg.valueType,
-		status.Data.System.CPULoad.Load15,
-		host, "15",
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		c.systemMemoryBytes.desc,
-		c.systemMemoryBytes.valueType,
-		status.Data.System.Memory.Total,
-		host,
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.systemMemoryFreeBytes.desc,
-		c.systemMemoryFreeBytes.valueType,
-		status.Data.System.Memory.Free,
-		host,
-	)
+	ch <- c.systemInfo.mustNewConstMetric(1.0, host, status.SystemInformation.Model, status.SystemInformation.SerialNumber.String())
+	ch <- c.systemUptimeSeconds.mustNewConstMetric(status.Data.System.UptimeSeconds, host)
+	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load1, host, "1")
+	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load5, host, "5")
+	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load15, host, "15")
+	ch <- c.systemMemoryBytes.mustNewConstMetric(status.Data.System.Memory.Total, host)
+	ch <- c.systemMemoryFreeBytes.mustNewConstMetric(status.Data.System.Memory.Free, host)
 
 	for _, event := range status.Data.Notification.Events {
-		ch <- prometheus.MustNewConstMetric(
-			c.event.desc,
-			c.event.valueType,
-			event.LastTriggeredUnix,
-			host, event.Type, event.Name,
-		)
+		ch <- c.event.mustNewConstMetric(event.LastTriggeredUnix, host, event.Type, event.Name)
 	}
 
 	for _, mount := range status.Data.System.Mounts {
-		ch <- prometheus.MustNewConstMetric(
-			c.storageTotal.desc,
-			c.storageTotal.valueType,
-			mount.Size,
-			host, mount.Mountpoint,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.storageUsed.desc,
-			c.storageUsed.valueType,
-			mount.Used,
-			host, mount.Mountpoint,
-		)
+		ch <- c.storageTotal.mustNewConstMetric(mount.Size, host, mount.Mountpoint)
+		ch <- c.storageUsed.mustNewConstMetric(mount.Used, host, mount.Mountpoint)
 	}
 
 	for _, assoc := range status.Data.NTP {
@@ -549,55 +492,15 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpStratum.desc,
-			c.ntpStratum.valueType,
-			assoc.Stratum,
-			host, assoc.RefID, assoc.Name,
-		)
+		ch <- c.ntpStratum.mustNewConstMetric(assoc.Stratum, host, assoc.RefID, assoc.Name)
 		precisionSeconds := math.Pow(2, assoc.Precision)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpPrecision.desc,
-			c.ntpPrecision.valueType,
-			precisionSeconds,
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpRootDelay.desc,
-			c.ntpRootDelay.valueType,
-			assoc.RootDelay,
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpRootDispersion.desc,
-			c.ntpRootDispersion.valueType,
-			assoc.RootDispersion,
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpClockJitter.desc,
-			c.ntpClockJitter.valueType,
-			assoc.ClockJitter,
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpClockWander.desc,
-			c.ntpClockWander.valueType,
-			assoc.ClockWander,
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpLeapIndicator.desc,
-			c.ntpLeapIndicator.valueType,
-			float64(assoc.LeapIndicator),
-			host, assoc.RefID, assoc.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.ntpLeapSecond.desc,
-			c.ntpLeapSecond.valueType,
-			float64(assoc.LeapSecondUnix),
-			host, assoc.RefID, assoc.Name,
-		)
+		ch <- c.ntpPrecision.mustNewConstMetric(precisionSeconds, host, assoc.RefID, assoc.Name)
+		ch <- c.ntpRootDelay.mustNewConstMetric(assoc.RootDelay, host, assoc.RefID, assoc.Name)
+		ch <- c.ntpRootDispersion.mustNewConstMetric(assoc.RootDispersion, host, assoc.RefID, assoc.Name)
+		ch <- c.ntpClockJitter.mustNewConstMetric(assoc.ClockJitter, host, assoc.RefID, assoc.Name)
+		ch <- c.ntpClockWander.mustNewConstMetric(assoc.ClockWander, host, assoc.RefID, assoc.Name)
+		ch <- c.ntpLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), host, assoc.RefID, assoc.Name)
+		ch <- c.ntpLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), host, assoc.RefID, assoc.Name)
 	}
 
 	for _, slot := range status.Data.Chassis.Slots {
@@ -606,84 +509,34 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		if slot.Type == "cpu" {
-			ch <- prometheus.MustNewConstMetric(
-				c.systemCPUInfo.desc,
-				c.systemCPUInfo.valueType,
-				1.0,
-				host, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(),
-			)
+			ch <- c.systemCPUInfo.mustNewConstMetric(1.0, host, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String())
 		} else if slot.Type == "clk" {
 			oscillatorType := "unknown"
 			if slot.Module.SyncStatus != nil {
 				oscillatorType = slot.Module.SyncStatus.OscillatorType
 			}
-			ch <- prometheus.MustNewConstMetric(
-				c.clkInfo.desc,
-				c.clkInfo.valueType,
-				1.0,
-				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType,
-			)
+			ch <- c.clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)
 
 			clkSynced := 0.0
 			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Clock == "synchronized" {
 				clkSynced = 1.0
 			}
-			ch <- prometheus.MustNewConstMetric(
-				c.clkSyncStatus.desc,
-				c.clkSyncStatus.valueType,
-				clkSynced,
-				host, slot.Name,
-			)
+			ch <- c.clkSyncStatus.mustNewConstMetric(clkSynced, host, slot.Name)
 
 			oscWarmedUp := 0.0
 			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up" {
 				oscWarmedUp = 1.0
 			}
-			ch <- prometheus.MustNewConstMetric(
-				c.clkOscillatorWarmedUp.desc,
-				c.clkOscillatorWarmedUp.valueType,
-				oscWarmedUp,
-				host, slot.Name,
-			)
+			ch <- c.clkOscillatorWarmedUp.mustNewConstMetric(oscWarmedUp, host, slot.Name)
 
-			ch <- prometheus.MustNewConstMetric(
-				c.clkEstTimeQuality.desc,
-				c.clkEstTimeQuality.valueType,
-				slot.Module.SyncStatus.TimeQuality.Seconds(),
-				host, slot.Name,
-			)
+			ch <- c.clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
 
 			if slot.Module.Satellites != nil {
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvGNSSSatInView.desc,
-					c.clkRcvGNSSSatInView.valueType,
-					slot.Module.Satellites.InView,
-					host, slot.Name,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvGNSSSatGood.desc,
-					c.clkRcvGNSSSatGood.valueType,
-					slot.Module.Satellites.Good,
-					host, slot.Name,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvGNSSLatitude.desc,
-					c.clkRcvGNSSLatitude.valueType,
-					slot.Module.Satellites.Latitude,
-					host, slot.Name,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvGNSSLongitude.desc,
-					c.clkRcvGNSSLongitude.valueType,
-					slot.Module.Satellites.Longitude,
-					host, slot.Name,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvGNSSAltitude.desc,
-					c.clkRcvGNSSAltitude.valueType,
-					slot.Module.Satellites.Altitude,
-					host, slot.Name,
-				)
+				ch <- c.clkRcvGNSSSatInView.mustNewConstMetric(slot.Module.Satellites.InView, host, slot.Name)
+				ch <- c.clkRcvGNSSSatGood.mustNewConstMetric(slot.Module.Satellites.Good, host, slot.Name)
+				ch <- c.clkRcvGNSSLatitude.mustNewConstMetric(slot.Module.Satellites.Latitude, host, slot.Name)
+				ch <- c.clkRcvGNSSLongitude.mustNewConstMetric(slot.Module.Satellites.Longitude, host, slot.Name)
+				ch <- c.clkRcvGNSSAltitude.mustNewConstMetric(slot.Module.Satellites.Altitude, host, slot.Name)
 			}
 
 			if slot.Module.GRC != nil {
@@ -692,23 +545,13 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					if slot.Module.GRC.Antenna.IsConnected {
 						antConnected = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSAntConnected.desc,
-						c.clkRcvGNSSAntConnected.valueType,
-						antConnected,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSAntConnected.mustNewConstMetric(antConnected, host, slot.Name)
 
 					antShortCircuit := 0.0
 					if slot.Module.GRC.Antenna.HasShortCircuit {
 						antShortCircuit = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSAntShortCircuit.desc,
-						c.clkRcvGNSSAntShortCircuit.valueType,
-						antShortCircuit,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSAntShortCircuit.mustNewConstMetric(antShortCircuit, host, slot.Name)
 				}
 
 				if slot.Module.GRC.Receiver != nil {
@@ -716,61 +559,31 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					if slot.Module.GRC.Receiver.IsSynchronized {
 						synced = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSSynced.desc,
-						c.clkRcvGNSSSynced.valueType,
-						synced,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSSynced.mustNewConstMetric(synced, host, slot.Name)
 
 					tracking := 0.0
 					if slot.Module.GRC.Receiver.IsTracking {
 						tracking = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSTracking.desc,
-						c.clkRcvGNSSTracking.valueType,
-						tracking,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSTracking.mustNewConstMetric(tracking, host, slot.Name)
 
 					warmBoot := 0.0
 					if slot.Module.GRC.Receiver.IsWarmBooting {
 						warmBoot = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSWarmBoot.desc,
-						c.clkRcvGNSSWarmBoot.valueType,
-						warmBoot,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSWarmBoot.mustNewConstMetric(warmBoot, host, slot.Name)
 
 					coldBoot := 0.0
 					if slot.Module.GRC.Receiver.IsColdBooting {
 						coldBoot = 1.0
 					}
-					ch <- prometheus.MustNewConstMetric(
-						c.clkRcvGNSSColdBoot.desc,
-						c.clkRcvGNSSColdBoot.valueType,
-						coldBoot,
-						host, slot.Name,
-					)
+					ch <- c.clkRcvGNSSColdBoot.mustNewConstMetric(coldBoot, host, slot.Name)
 				}
 			}
 
 			if slot.Module.DCF77 != nil {
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvDCF77FieldStrength.desc,
-					c.clkRcvDCF77FieldStrength.valueType,
-					slot.Module.DCF77.FieldStrength,
-					host, slot.Name,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.clkRcvDCF77Correlation.desc,
-					c.clkRcvDCF77Correlation.valueType,
-					slot.Module.DCF77.Correlation,
-					host, slot.Name,
-				)
+				ch <- c.clkRcvDCF77FieldStrength.mustNewConstMetric(slot.Module.DCF77.FieldStrength, host, slot.Name)
+				ch <- c.clkRcvDCF77Correlation.mustNewConstMetric(slot.Module.DCF77.Correlation, host, slot.Name)
 			}
 		}
 	}
