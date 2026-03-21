@@ -54,7 +54,6 @@ type Collector struct {
 	systemCPULoadAvg          typedDesc
 	systemMemoryBytes         typedDesc
 	systemMemoryFreeBytes     typedDesc
-	event                     typedDesc
 	clkInfo                   typedDesc
 	clkSyncStatus             typedDesc
 	clkOscillatorWarmedUp     typedDesc
@@ -147,15 +146,6 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				MetricPrefix+"system_memory_free_bytes",
 				"Free memory in bytes",
 				[]string{"host"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		event: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"event_last_triggered_seconds",
-				"When an event last occurred as seconds since UNIX epoch (0 if never triggered)",
-				[]string{"host", "type", "event"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -325,7 +315,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.systemCPULoadAvg.desc
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
-	ch <- c.event.desc
+	describeEvent(ch)
 	describeStorage(ch)
 	ch <- c.clkInfo.desc
 	ch <- c.clkSyncStatus.desc
@@ -376,10 +366,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	ch <- c.systemMemoryBytes.mustNewConstMetric(status.Data.System.Memory.Total, host)
 	ch <- c.systemMemoryFreeBytes.mustNewConstMetric(status.Data.System.Memory.Free, host)
 
-	for _, event := range status.Data.Notification.Events {
-		ch <- c.event.mustNewConstMetric(event.LastTriggeredUnix, host, event.Type, event.Name)
-	}
-
+	c.collectEvent(ch, host, status.Data.Notification.Events)
 	c.collectStorage(ch, host, status.Data.System.Mounts)
 	c.collectNTP(ch, host, status.Data.NTP)
 

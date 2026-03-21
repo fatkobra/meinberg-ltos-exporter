@@ -1,0 +1,26 @@
+package collector
+
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
+)
+
+var eventLastTriggered = typedDesc{
+	desc: prometheus.NewDesc(
+		MetricPrefix+"event_last_triggered_seconds",
+		"When an event last occurred as seconds since UNIX epoch (0 if never triggered)",
+		[]string{"host", "type", "event"},
+		nil,
+	),
+	valueType: prometheus.GaugeValue,
+}
+
+func describeEvent(ch chan<- *prometheus.Desc) {
+	ch <- eventLastTriggered.desc
+}
+
+func (c *Collector) collectEvent(ch chan<- prometheus.Metric, host string, events []models.Event) {
+	for _, event := range events {
+		ch <- eventLastTriggered.mustNewConstMetric(event.LastTriggeredUnix, host, event.Type, event.Name)
+	}
+}
