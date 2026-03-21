@@ -124,11 +124,7 @@ func describeReceiverGNSS(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) collectReceiverGNSS(ch chan<- prometheus.Metric, host string, slots []models.Slot) {
-	for _, slot := range slots {
-		if slot.Module == nil || slot.Type != "clk" {
-			continue
-		}
-
+	forEachClockSlot(slots, func(slot models.Slot) {
 		if slot.Module.Satellites != nil {
 			ch <- clkRcvGNSSSatInView.mustNewConstMetric(slot.Module.Satellites.InView, host, slot.Name)
 			ch <- clkRcvGNSSSatGood.mustNewConstMetric(slot.Module.Satellites.Good, host, slot.Name)
@@ -150,5 +146,5 @@ func (c *Collector) collectReceiverGNSS(ch chan<- prometheus.Metric, host string
 				ch <- clkRcvGNSSColdBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsColdBooting), host, slot.Name)
 			}
 		}
-	}
+	})
 }

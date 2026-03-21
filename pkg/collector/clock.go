@@ -54,11 +54,7 @@ func describeClock(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) collectClock(ch chan<- prometheus.Metric, host string, slots []models.Slot) {
-	for _, slot := range slots {
-		if slot.Module == nil || slot.Type != "clk" {
-			continue
-		}
-
+	forEachClockSlot(slots, func(slot models.Slot) {
 		oscillatorType := "unknown"
 		if slot.Module.SyncStatus != nil {
 			oscillatorType = slot.Module.SyncStatus.OscillatorType
@@ -70,5 +66,5 @@ func (c *Collector) collectClock(ch chan<- prometheus.Metric, host string, slots
 			ch <- clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
 		}
 		ch <- clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)
-	}
+	})
 }

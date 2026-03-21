@@ -34,12 +34,11 @@ func describeReceiverDCF77(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) collectReceiverDCF77(ch chan<- prometheus.Metric, host string, slots []models.Slot) {
-	for _, slot := range slots {
-		if slot.Module == nil || slot.Type != "clk" || slot.Module.DCF77 == nil {
-			continue
+	forEachClockSlot(slots, func(slot models.Slot) {
+		if slot.Module.DCF77 == nil {
+			return
 		}
-
 		ch <- clkRcvDCF77FieldStrength.mustNewConstMetric(slot.Module.DCF77.FieldStrength, host, slot.Name)
 		ch <- clkRcvDCF77Correlation.mustNewConstMetric(slot.Module.DCF77.Correlation, host, slot.Name)
-	}
+	})
 }
