@@ -113,12 +113,6 @@ func parseFlags() *Config {
 	return cfg
 }
 
-// registerMetrics registers Prometheus metrics
-func registerMetrics(client *ltosapi.Client, logger *slog.Logger) error {
-	collector := collector.NewCollector(client, logger)
-	return collector.Register()
-}
-
 func main() {
 	cfg := parseFlags()
 
@@ -132,14 +126,10 @@ func main() {
 		"listen_port", cfg.ListenPort,
 	)
 
-	prometheus.MustRegister(versioncollector.NewCollector(collector.MetricPrefix + "exporter"))
-
 	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
-	if err := registerMetrics(client, logger); err != nil {
-		logger.Error("Failed to register metrics", "error", err)
-		os.Exit(1)
-	}
+	prometheus.MustRegister(collector.NewCollector(client, logger))
+	prometheus.MustRegister(versioncollector.NewCollector(collector.MetricPrefix + "exporter"))
 
 	http.Handle(cfg.MetricsPath, promhttp.Handler())
 

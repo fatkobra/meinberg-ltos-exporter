@@ -777,8 +777,3 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 }
-
-// Register registers the collector with Prometheus
-func (c *Collector) Register() error {
-	return prometheus.Register(c)
-}
