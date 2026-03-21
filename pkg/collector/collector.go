@@ -35,6 +35,13 @@ func (td typedDesc) mustNewConstMetric(value float64, labels ...string) promethe
 	return prometheus.MustNewConstMetric(td.desc, td.valueType, value, labels...)
 }
 
+func boolToFloat64(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
+}
+
 // Collector implements prometheus.Collector for Meinberg metrics
 type Collector struct {
 	client *ltosapi.Client
@@ -541,43 +548,15 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 			if slot.Module.GRC != nil {
 				if slot.Module.GRC.Antenna != nil {
-					antConnected := 0.0
-					if slot.Module.GRC.Antenna.IsConnected {
-						antConnected = 1.0
-					}
-					ch <- c.clkRcvGNSSAntConnected.mustNewConstMetric(antConnected, host, slot.Name)
-
-					antShortCircuit := 0.0
-					if slot.Module.GRC.Antenna.HasShortCircuit {
-						antShortCircuit = 1.0
-					}
-					ch <- c.clkRcvGNSSAntShortCircuit.mustNewConstMetric(antShortCircuit, host, slot.Name)
+					ch <- c.clkRcvGNSSAntConnected.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.IsConnected), host, slot.Name)
+					ch <- c.clkRcvGNSSAntShortCircuit.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.HasShortCircuit), host, slot.Name)
 				}
 
 				if slot.Module.GRC.Receiver != nil {
-					synced := 0.0
-					if slot.Module.GRC.Receiver.IsSynchronized {
-						synced = 1.0
-					}
-					ch <- c.clkRcvGNSSSynced.mustNewConstMetric(synced, host, slot.Name)
-
-					tracking := 0.0
-					if slot.Module.GRC.Receiver.IsTracking {
-						tracking = 1.0
-					}
-					ch <- c.clkRcvGNSSTracking.mustNewConstMetric(tracking, host, slot.Name)
-
-					warmBoot := 0.0
-					if slot.Module.GRC.Receiver.IsWarmBooting {
-						warmBoot = 1.0
-					}
-					ch <- c.clkRcvGNSSWarmBoot.mustNewConstMetric(warmBoot, host, slot.Name)
-
-					coldBoot := 0.0
-					if slot.Module.GRC.Receiver.IsColdBooting {
-						coldBoot = 1.0
-					}
-					ch <- c.clkRcvGNSSColdBoot.mustNewConstMetric(coldBoot, host, slot.Name)
+					ch <- c.clkRcvGNSSSynced.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsSynchronized), host, slot.Name)
+					ch <- c.clkRcvGNSSTracking.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsTracking), host, slot.Name)
+					ch <- c.clkRcvGNSSWarmBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsWarmBooting), host, slot.Name)
+					ch <- c.clkRcvGNSSColdBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsColdBooting), host, slot.Name)
 				}
 			}
 
