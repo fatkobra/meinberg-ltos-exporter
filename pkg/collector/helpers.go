@@ -21,7 +21,7 @@ func boolToFloat64(b bool) float64 {
 	return 0.0
 }
 
-func forEachSlot(slots []models.Slot, slotType string, fn func(models.Slot)) {
+func forEachSlotWithModule(slots []models.Slot, slotType string, fn func(models.Slot)) {
 	for _, slot := range slots {
 		if slot.Type != slotType || slot.Module == nil {
 			continue
@@ -31,9 +31,9 @@ func forEachSlot(slots []models.Slot, slotType string, fn func(models.Slot)) {
 }
 
 func forEachCPUSlot(slots []models.Slot, fn func(models.Slot)) {
-	forEachSlot(slots, "cpu", fn)
+	forEachSlotWithModule(slots, "cpu", fn)
 }
 
 func forEachClockSlot(slots []models.Slot, fn func(models.Slot)) {
-	forEachSlot(slots, "clk", fn)
+	forEachSlotWithModule(slots, "clk", fn)
 }
