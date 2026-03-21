@@ -17,11 +17,11 @@ var eventLastTriggered = typedDesc{
 	valueType: prometheus.GaugeValue,
 }
 
-func describeEvent(ch chan<- *prometheus.Desc) {
+func describeNotification(ch chan<- *prometheus.Desc) {
 	ch <- eventLastTriggered.desc
 }
 
-func (c *Collector) collectEvent(ch chan<- prometheus.Metric, host string, events []models.Event) {
+func (c *Collector) collectNotification(ch chan<- prometheus.Metric, host string, events []models.Event) {
 	for _, event := range events {
 		ch <- eventLastTriggered.mustNewConstMetric(event.LastTriggeredUnix, host, event.Type, event.Name)
 	}

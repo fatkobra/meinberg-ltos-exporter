@@ -77,7 +77,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.buildInfo.desc
 
 	describeSystem(ch)
-	describeEvent(ch)
+	describeNotification(ch)
 	describeStorage(ch)
 	describeClock(ch)
 	describeReceiverGNSS(ch)
@@ -106,7 +106,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	ch <- c.buildInfo.mustNewConstMetric(1.0, host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
 	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.Chassis.Slots)
-	c.collectEvent(ch, host, status.Data.Notification.Events)
+	c.collectNotification(ch, host, status.Data.Notification.Events)
 	c.collectStorage(ch, host, status.Data.System.Mounts)
 	c.collectNTP(ch, host, status.Data.NTP)
 	c.collectClock(ch, host, status.Data.Chassis.Slots)
