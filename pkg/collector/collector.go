@@ -24,22 +24,6 @@ import (
 
 const MetricNamespace = "meinberg_ltos"
 
-type typedDesc struct {
-	desc      *prometheus.Desc
-	valueType prometheus.ValueType
-}
-
-func (td typedDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
-	return prometheus.MustNewConstMetric(td.desc, td.valueType, value, labels...)
-}
-
-func boolToFloat64(b bool) float64 {
-	if b {
-		return 1.0
-	}
-	return 0.0
-}
-
 type Collector struct {
 	client    *ltosapi.Client
 	logger    *slog.Logger
