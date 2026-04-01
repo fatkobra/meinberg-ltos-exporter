@@ -128,16 +128,7 @@ func parseFlags() *Config {
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	switch *logLevelFlag {
-	case "debug":
-		cfg.LogLevel = slog.LevelDebug
-	case "info":
-		cfg.LogLevel = slog.LevelInfo
-	case "warn":
-		cfg.LogLevel = slog.LevelWarn
-	case "error":
-		cfg.LogLevel = slog.LevelError
-	default:
+	if err := cfg.LogLevel.UnmarshalText([]byte(*logLevelFlag)); err != nil {
 		cfg.LogLevel = slog.LevelInfo
 	}
 
