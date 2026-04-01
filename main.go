@@ -52,44 +52,44 @@ func parseFlags() *Config {
 
 	cfg := &Config{}
 
-	EnvPrefix := "MEINBERG_LTOS_EXPORTER_"
+	const envPrefix = "MEINBERG_LTOS_EXPORTER_"
 
 	app.Flag("web.listen-address", "Address to listen on").
 		Default("localhost").
-		Envar(EnvPrefix + "LISTEN_ADDR").
+		Envar(envPrefix + "LISTEN_ADDR").
 		StringVar(&cfg.ListenAddr)
 
 	app.Flag("web.listen-port", "Port to listen on").
 		Default("10123").
-		Envar(EnvPrefix + "LISTEN_PORT").
+		Envar(envPrefix + "LISTEN_PORT").
 		StringVar(&cfg.ListenPort)
 
 	app.Flag("web.telemetry-path", "Path under which to expose metrics").
 		Default("/metrics").
-		Envar(EnvPrefix + "METRICS_PATH").
+		Envar(envPrefix + "METRICS_PATH").
 		StringVar(&cfg.MetricsPath)
 
 	app.Flag("ltos-api-url", "URL of the Meinberg LTOS API").
 		Required().
-		Envar(EnvPrefix + "LTOS_API_URL").
+		Envar(envPrefix + "LTOS_API_URL").
 		StringVar(&cfg.LTOSAPIURL)
 
 	app.Flag("auth-user", "Basic auth username").
-		Envar(EnvPrefix + "AUTH_USER").
+		Envar(envPrefix + "AUTH_USER").
 		StringVar(&cfg.AuthBasicUser)
 
 	app.Flag("auth-pass", "Basic auth password").
-		Envar(EnvPrefix + "AUTH_PASS").
+		Envar(envPrefix + "AUTH_PASS").
 		StringVar(&cfg.AuthBasicPass)
 
 	app.Flag("timeout", "Timeout for HTTP requests to Meinberg device").
 		Default("5s").
-		Envar(EnvPrefix + "TIMEOUT").
+		Envar(envPrefix + "TIMEOUT").
 		DurationVar(&cfg.Timeout)
 
 	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
 		Default("false").
-		Envar(EnvPrefix + "IGNORE_SSL_VERIFY").
+		Envar(envPrefix + "IGNORE_SSL_VERIFY").
 		BoolVar(&cfg.IgnoreSSLVerify)
 
 	logLevelFlag := app.Flag("log-level", "Log level (debug, info, warn, error)").
@@ -98,32 +98,32 @@ func parseFlags() *Config {
 
 	app.Flag("collector.system", "Enable system collector.").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_SYSTEM").
+		Envar(envPrefix + "COLLECTOR_SYSTEM").
 		BoolVar(&cfg.Collector.System)
 
 	app.Flag("collector.notification", "Enable notification collector.").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_NOTIFICATION").
+		Envar(envPrefix + "COLLECTOR_NOTIFICATION").
 		BoolVar(&cfg.Collector.Notification)
 
 	app.Flag("collector.storage", "Enable storage collector.").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_STORAGE").
+		Envar(envPrefix + "COLLECTOR_STORAGE").
 		BoolVar(&cfg.Collector.Storage)
 
 	app.Flag("collector.clock", "Enable clock collector.").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_CLOCK").
+		Envar(envPrefix + "COLLECTOR_CLOCK").
 		BoolVar(&cfg.Collector.Clock)
 
 	app.Flag("collector.receiver", "Enable receiver collectors (GNSS + DCF77).").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_RECEIVER").
+		Envar(envPrefix + "COLLECTOR_RECEIVER").
 		BoolVar(&cfg.Collector.Receiver)
 
 	app.Flag("collector.ntp", "Enable NTP collector.").
 		Default("true").
-		Envar(EnvPrefix + "COLLECTOR_NTP").
+		Envar(envPrefix + "COLLECTOR_NTP").
 		BoolVar(&cfg.Collector.NTP)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
