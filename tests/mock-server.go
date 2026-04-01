@@ -108,7 +108,7 @@ curl http://localhost:10123/metrics
 	listenAddr := fmt.Sprintf("%s:%s", *addr, *port)
 
 	var handler http.Handler = http.DefaultServeMux
-	if basicAuthUser != nil && basicAuthPass != nil {
+	if *basicAuthUser != "" && *basicAuthPass != "" {
 		handler = basicAuth(http.DefaultServeMux, *basicAuthUser, *basicAuthPass)
 	}
 
