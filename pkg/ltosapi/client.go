@@ -62,7 +62,7 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 func (c *Client) FetchStatus() (*models.StatusResponse, error) {
 	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
 
-	req, err := http.NewRequest("GET", c.baseURL+"/api/status", nil)
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/status", nil)
 	if err != nil {
 		return nil, err
 	}
