@@ -169,5 +169,5 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		c.collectReceiverDCF77(ch, host, status.Data.Chassis.Slots)
 	}
 
-	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
+	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target(), "host", host)
 }
