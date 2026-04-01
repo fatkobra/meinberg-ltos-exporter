@@ -18,7 +18,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -81,13 +80,8 @@ func (c *Client) FetchStatus() (*models.StatusResponse, error) {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var data models.StatusResponse
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal status response: %w", err)
 	}
 
