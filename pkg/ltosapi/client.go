@@ -29,7 +29,6 @@ import (
 type Client struct {
 	logger        *slog.Logger
 	baseURL       string
-	timeout       time.Duration
 	authBasicUser string
 	authBasicPass string
 	httpClient    *http.Client
@@ -45,7 +44,6 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 	return &Client{
 		logger:        logger,
 		baseURL:       baseURL,
-		timeout:       timeout,
 		authBasicUser: authBasicUser,
 		authBasicPass: authBasicPass,
 		httpClient: &http.Client{
