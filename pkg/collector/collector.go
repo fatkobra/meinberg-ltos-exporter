@@ -48,6 +48,25 @@ type Collector struct {
 }
 
 func NewCollector(config Config, client *ltosapi.Client, logger *slog.Logger) *Collector {
+	if !config.System {
+		logger.Info("Collector disabled", "collector", "system")
+	}
+	if !config.Notification {
+		logger.Info("Collector disabled", "collector", "notification")
+	}
+	if !config.Storage {
+		logger.Info("Collector disabled", "collector", "storage")
+	}
+	if !config.Clock {
+		logger.Info("Collector disabled", "collector", "clock")
+	}
+	if !config.Receiver {
+		logger.Info("Collector disabled", "collector", "receiver")
+	}
+	if !config.NTP {
+		logger.Info("Collector disabled", "collector", "ntp")
+	}
+
 	return &Collector{
 		config: config,
 		client: client,
