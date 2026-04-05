@@ -94,3 +94,13 @@ arguments.
 
 The exporter supports Basic Authentication. Ensure the user has the "info"
 access level (lowest permission level) configured on the LTOS device.
+
+## Docker
+
+```sh
+docker run --rm -p 10123:10123 \
+  -e MEINBERG_LTOS_EXPORTER_LTOS_API_URL=https://<device>/api \
+  -e MEINBERG_LTOS_EXPORTER_AUTH_USER=<user> \
+  -e MEINBERG_LTOS_EXPORTER_AUTH_PASS=<password> \
+  ghcr.io/raphaelthomas/meinberg_ltos_exporter:latest
+```
