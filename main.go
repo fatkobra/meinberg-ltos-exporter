@@ -19,7 +19,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -36,7 +35,6 @@ type Config struct {
 	ListenPort      string
 	MetricsPath     string
 	LTOSAPIURL      string
-	Timeout         time.Duration
 	LogLevel        slog.Level
 	AuthBasicUser   string
 	AuthBasicPass   string
@@ -85,7 +83,7 @@ func parseFlags() *Config {
 	app.Flag("timeout", "Timeout for HTTP requests to Meinberg device").
 		Default("5s").
 		Envar(envPrefix + "TIMEOUT").
-		DurationVar(&cfg.Timeout)
+		DurationVar(&cfg.Collector.Timeout)
 
 	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
 		Default("false").
@@ -148,7 +146,7 @@ func main() {
 		"listen_port", cfg.ListenPort,
 	)
 
-	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
+	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
 	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))

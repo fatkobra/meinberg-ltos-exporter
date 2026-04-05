@@ -15,12 +15,12 @@
 package ltosapi
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
@@ -40,14 +40,13 @@ func (c *Client) Target() string {
 }
 
 // NewClient creates a new Meinberg LTOS API client
-func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string, ignoreSSLVerify bool, logger *slog.Logger) *Client {
+func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool, logger *slog.Logger) *Client {
 	return &Client{
 		logger:        logger,
 		baseURL:       baseURL,
 		authBasicUser: authBasicUser,
 		authBasicPass: authBasicPass,
 		httpClient: &http.Client{
-			Timeout: timeout,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSSLVerify},
 			},
@@ -56,10 +55,10 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 }
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
-func (c *Client) FetchStatus() (*models.StatusResponse, error) {
+func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error) {
 	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
 
-	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/status", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/api/status", nil)
 	if err != nil {
 		return nil, err
 	}

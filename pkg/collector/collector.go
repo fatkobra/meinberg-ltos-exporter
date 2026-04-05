@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -29,6 +30,7 @@ const (
 )
 
 type Config struct {
+	Timeout      time.Duration
 	System       bool
 	Notification bool
 	Storage      bool
@@ -128,6 +130,9 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.config.Timeout)
+	defer cancel()
+
 	start := time.Now()
 	up := 0.0
 
@@ -139,7 +144,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 
-	status, err := c.client.FetchStatus()
+	status, err := c.client.FetchStatus(ctx)
 	if err != nil {
 		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err.Error())
 		return
