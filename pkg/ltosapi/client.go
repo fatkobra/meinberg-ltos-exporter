@@ -25,6 +25,8 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
+const apiStatusPath = "/api/status"
+
 // Client represents a Meinberg LTOS API client
 type Client struct {
 	logger        *slog.Logger
@@ -56,9 +58,10 @@ func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVer
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
 func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error) {
-	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
+	url := c.baseURL + apiStatusPath
+	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", url)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/api/status", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +77,7 @@ func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		c.logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", c.baseURL+"/api/status", "status_code", resp.StatusCode)
+		c.logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", url, "status_code", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -83,6 +86,6 @@ func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error
 		return nil, fmt.Errorf("failed to unmarshal status response: %w", err)
 	}
 
-	c.logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
+	c.logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", url)
 	return &data, nil
 }
