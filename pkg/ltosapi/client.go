@@ -57,7 +57,9 @@ func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVer
 // FetchStatus fetches the target status from the Meinberg LTOS API
 func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.StatusResponse, error) {
 	url := c.baseURL + apiStatusPath
-	logger.Debug("Fetching status from Meinberg LTOS device API", "url", url)
+	logger = logger.With("url", url)
+
+	logger.Debug("Fetching status from Meinberg LTOS device API")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -75,7 +77,7 @@ func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", url, "status_code", resp.StatusCode)
+		logger.Warn("Unexpected status code from Meinberg LTOS device API", "status_code", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -84,6 +86,6 @@ func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.
 		return nil, fmt.Errorf("failed to unmarshal status response: %w", err)
 	}
 
-	logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", url)
+	logger.Debug("Successfully fetched status from Meinberg LTOS device API")
 	return &data, nil
 }
