@@ -18,6 +18,7 @@ package collector
 import (
 	"context"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -28,6 +29,8 @@ const (
 	MetricNamespace = "meinberg_ltos"
 	rootSubsystem   = ""
 )
+
+var scrapeID atomic.Uint64
 
 type Config struct {
 	Timeout      time.Duration
@@ -130,6 +133,8 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+	logger := c.logger.With("scrape_id", scrapeID.Add(1))
+
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.Timeout)
 	defer cancel()
 
@@ -142,11 +147,11 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		ch <- c.up.mustNewConstMetric(up, c.client.Target())
 	}()
 
-	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
+	logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 
-	status, err := c.client.FetchStatus(ctx)
+	status, err := c.client.FetchStatus(ctx, logger)
 	if err != nil {
-		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err)
+		logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err)
 		return
 	}
 
@@ -174,5 +179,5 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		c.collectReceiverDCF77(ch, host, status.Data.Chassis.Slots)
 	}
 
-	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target(), "host", host)
+	logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target(), "host", host)
 }

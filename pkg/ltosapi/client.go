@@ -29,7 +29,6 @@ const apiStatusPath = "/api/status"
 
 // Client represents a Meinberg LTOS API client
 type Client struct {
-	logger        *slog.Logger
 	baseURL       string
 	authBasicUser string
 	authBasicPass string
@@ -42,9 +41,8 @@ func (c *Client) Target() string {
 }
 
 // NewClient creates a new Meinberg LTOS API client
-func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool, logger *slog.Logger) *Client {
+func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool) *Client {
 	return &Client{
-		logger:        logger,
 		baseURL:       baseURL,
 		authBasicUser: authBasicUser,
 		authBasicPass: authBasicPass,
@@ -57,9 +55,9 @@ func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVer
 }
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
-func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error) {
+func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.StatusResponse, error) {
 	url := c.baseURL + apiStatusPath
-	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", url)
+	logger.Debug("Fetching status from Meinberg LTOS device API", "url", url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -77,7 +75,7 @@ func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		c.logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", url, "status_code", resp.StatusCode)
+		logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", url, "status_code", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -86,6 +84,6 @@ func (c *Client) FetchStatus(ctx context.Context) (*models.StatusResponse, error
 		return nil, fmt.Errorf("failed to unmarshal status response: %w", err)
 	}
 
-	c.logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", url)
+	logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", url)
 	return &data, nil
 }

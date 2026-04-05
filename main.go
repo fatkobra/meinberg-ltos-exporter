@@ -146,7 +146,7 @@ func main() {
 		"listen_port", cfg.ListenPort,
 	)
 
-	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
+	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
 
 	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
