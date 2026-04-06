@@ -19,6 +19,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -125,6 +126,12 @@ func parseFlags() *Config {
 		BoolVar(&cfg.Collector.NTP)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	port, err := strconv.Atoi(cfg.ListenPort)
+	if err != nil || port < 1 || port > 65535 {
+		fmt.Fprintf(os.Stderr, "error: invalid listen port %q: must be between 1 and 65535\n", cfg.ListenPort)
+		os.Exit(1)
+	}
 
 	if err := cfg.LogLevel.UnmarshalText([]byte(*logLevelFlag)); err != nil {
 		cfg.LogLevel = slog.LevelInfo
