@@ -1,0 +1,37 @@
+name: Device Report
+description: Report a Meinberg LTOS device to help extend compatibility
+labels: ["device-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve device coverage! Retrieve your device status with the following command:
+        ```
+        curl -s -k -u <user> https://<device>/api/status
+        ```
+
+        > **Privacy:** Anonymize your `/api/status` output — remove or replace hostnames, IP addresses, serial numbers, and any other sensitive information.
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Does the exporter work with this device?
+      options:
+        - "Yes - all metrics look correct"
+        - "Partially - some metrics are missing or wrong"
+        - "No - exporter fails or returns no metrics"
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-status-json
+    attributes:
+      label: Anonymized /api/status JSON
+      render: json
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes (logs, error messages, other)

@@ -15,8 +15,10 @@ the available data as Prometheus metrics.
 > limited number of devices. It may not work correctly with all Meinberg
 > devices and LTOS versions.
 >
-> Please **provide feedback** through GitHub issues, include the anonymized
-> JSON output of `/api/status` to facilitate extending or fixing the exporter.
+> Please send a **[device
+> report](https://github.com/raphaelthomas/meinberg-ltos-exporter/issues/new?template=device-report.yml)**
+> for any bugs and to help extend compatibility. Include the anonymized JSON
+> output of `/api/status`.
 
 ## Supported Meinberg LTOS Devices
 
