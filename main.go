@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -162,10 +163,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle(cfg.MetricsPath, promhttp.Handler())
 
-	if cfg.MetricsPath != "/" && cfg.MetricsPath != "" {
-		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "text/html")
-			if _, err := fmt.Fprintf(w, `
+	landingPageTmpl := template.Must(template.New("landingPage").Parse(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -174,10 +172,15 @@ func main() {
 <body>
   <h1>Meinberg LTOS Exporter</h1>
   <p>Prometheus exporter for Meinberg LTOS devices.</p>
-	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from %s.</p>
+	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from {{.}}.</p>
 </body>
 </html>
-		`, cfg.Target); err != nil {
+`))
+
+	if cfg.MetricsPath != "/" && cfg.MetricsPath != "" {
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			if err := landingPageTmpl.Execute(w, cfg.Target); err != nil {
 				logger.Error("Failed to write response", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
