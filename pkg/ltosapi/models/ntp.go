@@ -85,10 +85,6 @@ func (a NTPAssociation) IsSys() bool {
 	return a.AssociationID == 0
 }
 
-func (a NTPAssociation) IsPeer() bool {
-	return !a.IsSys()
-}
-
 func (a NTPAssociation) PrecisionSeconds() float64 {
 	return math.Pow(2, a.Precision)
 }
