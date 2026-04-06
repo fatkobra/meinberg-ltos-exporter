@@ -78,7 +78,6 @@ type NTPAssociation struct {
 	Offset     *float64 `json:"offset,omitempty"`
 	Delay      *float64 `json:"delay,omitempty"`
 	Dispersion *float64 `json:"dispersion,omitempty"`
-	Reach      *int     `json:"reach,omitempty"`
 }
 
 func (a NTPAssociation) IsSys() bool {
