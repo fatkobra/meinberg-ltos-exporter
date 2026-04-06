@@ -57,8 +57,8 @@ Flags:
       --web.telemetry-path="/metrics"
                                  Path under which to expose metrics ($MEINBERG_LTOS_EXPORTER_METRICS_PATH)
       --target=TARGET            Base URL of the Meinberg LTOS device (e.g. https://clock.example.com) ($MEINBERG_LTOS_EXPORTER_TARGET)
-      --auth-user=AUTH-USER      Basic auth username ($MEINBERG_LTOS_EXPORTER_AUTH_USER)
-      --auth-pass=AUTH-PASS      Basic auth password ($MEINBERG_LTOS_EXPORTER_AUTH_PASS)
+      --auth-user=AUTH-USER      Basic auth username (prefer env var over CLI flag) ($MEINBERG_LTOS_EXPORTER_AUTH_USER)
+      --auth-pass=AUTH-PASS      Basic auth password (prefer env var over CLI flag) ($MEINBERG_LTOS_EXPORTER_AUTH_PASS)
       --timeout=5s               Timeout for HTTP requests to Meinberg device ($MEINBERG_LTOS_EXPORTER_TIMEOUT)
       --[no-]ignore-ssl-verify   Ignore SSL certificate verification ($MEINBERG_LTOS_EXPORTER_IGNORE_SSL_VERIFY)
       --log-level=info           Log level (debug, info, warn, error)

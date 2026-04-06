@@ -77,11 +77,11 @@ func parseFlags() *Config {
 		Envar(envPrefix + "TARGET").
 		StringVar(&cfg.Target)
 
-	app.Flag("auth-user", "Basic auth username").
+	app.Flag("auth-user", "Basic auth username (prefer env var over CLI flag)").
 		Envar(envPrefix + "AUTH_USER").
 		StringVar(&cfg.AuthBasicUser)
 
-	app.Flag("auth-pass", "Basic auth password").
+	app.Flag("auth-pass", "Basic auth password (prefer env var over CLI flag)").
 		Envar(envPrefix + "AUTH_PASS").
 		StringVar(&cfg.AuthBasicPass)
 
