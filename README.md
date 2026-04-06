@@ -97,8 +97,21 @@ goreleaser build --snapshot --clean
 
 Run the following in three separate terminal windows:
 
-```sh
-make run
-go run tests/mock_server.go
-curl -s http://localhost:10123/metrics | grep mbg_ltos
-```
+1. A mock LTOS API serving static test data. Supply a file from
+`tests/testdata/` as static API JSON response via `FILE`:
+
+   ```sh
+   make mock-api FILE=tests/testdata/m600-gps.json AUTH_USER=myuser AUTH_PASS=mypass
+   ```
+
+1. Run the exporter (triggers a build if necessary):
+
+   ```sh
+   make run AUTH_USER=myuser AUTH_PASS=mypass
+   ```
+
+1. Scrape the metrics exposed by the exporter:
+
+   ```sh
+   curl -s http://localhost:10123/metrics | grep meinberg_ltos
+   ```

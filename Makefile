@@ -1,16 +1,21 @@
-USER         := admin
-PASS         := password
+AUTH_USER    ?=
+AUTH_PASS    ?=
+FILE         ?= tests/testdata/m600-gps.json
 NEXT_VERSION := $(shell svu next)
 
 .PHONY: build run test-certs mock-api release test clean
+
 build:
 	go build -o meinberg_ltos_exporter .
+
+run: build
+	./meinberg_ltos_exporter --target https://localhost:8080 --ignore-ssl-verify $(if $(AUTH_USER),--auth-user $(AUTH_USER)) $(if $(AUTH_PASS),--auth-pass $(AUTH_PASS))
 
 test-certs:
 	 openssl req -x509 -newkey rsa:4096 -keyout tests/mock-key.pem -out tests/mock-cert.pem -sha256 -days 5 -nodes -subj "/C=CH/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 
 mock-api: test-certs
-	go run tests/mock-server.go -ssl-cert tests/mock-cert.pem -ssl-key tests/mock-key.pem -file tests/mock-api-status-response.json -user $(USER) -pass $(PASS)
+	go run tests/mock-server.go -ssl-cert tests/mock-cert.pem -ssl-key tests/mock-key.pem -file $(FILE) $(if $(AUTH_USER),-user $(AUTH_USER)) $(if $(AUTH_PASS),-pass $(AUTH_PASS))
 
 release:
 	@echo "Current version: $(shell svu current)"
