@@ -15,12 +15,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -189,9 +192,21 @@ func main() {
 	}
 
 	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
+	srv := &http.Server{Addr: listenAddr, Handler: mux}
+
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+		sig := <-sigCh
+		logger.Info("Received signal, shutting down HTTP server", "signal", sig)
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Error("HTTP server shutdown error", "error", err)
+		}
+	}()
+
 	logger.Info("HTTP server listening", "address", listenAddr)
 
-	if err := http.ListenAndServe(listenAddr, mux); err != nil {
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("HTTP server error", "error", err)
 		os.Exit(1)
 	}
