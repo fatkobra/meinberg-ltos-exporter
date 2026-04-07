@@ -1,7 +1,7 @@
 AUTH_USER    ?=
 AUTH_PASS    ?=
 FILE         ?= tests/testdata/m600-gps.json
-NEXT_VERSION := $(shell svu next)
+NEXT_VERSION := $(shell svu next --v0)
 
 .PHONY: build run test-certs mock-api release test clean
 
