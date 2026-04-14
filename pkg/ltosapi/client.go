@@ -74,7 +74,11 @@ func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Warn("Failed to close response body", "error", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		logger.Warn("Unexpected status code from Meinberg LTOS device API", "status_code", resp.StatusCode)
