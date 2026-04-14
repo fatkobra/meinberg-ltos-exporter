@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
 const (
@@ -43,9 +43,14 @@ type Config struct {
 	NTP          bool
 }
 
+type StatusFetcher interface {
+	FetchStatus(ctx context.Context, logger *slog.Logger) (*models.StatusResponse, error)
+	Target() string
+}
+
 type Collector struct {
 	config Config
-	client *ltosapi.Client
+	client StatusFetcher
 	logger *slog.Logger
 
 	up             typedDesc
@@ -53,7 +58,7 @@ type Collector struct {
 	buildInfo      typedDesc
 }
 
-func NewCollector(config Config, client *ltosapi.Client, logger *slog.Logger) *Collector {
+func NewCollector(config Config, client StatusFetcher, logger *slog.Logger) *Collector {
 	if !config.System {
 		logger.Info("Collector disabled", "collector", "system")
 	}
