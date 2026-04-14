@@ -3,7 +3,7 @@ AUTH_PASS    ?=
 FILE         ?= tests/testdata/m600-gps.json
 NEXT_VERSION := $(shell svu next --v0)
 
-.PHONY: build run test-certs mock-api release test clean
+.PHONY: build run test-certs mock-api release test lint clean
 
 build:
 	go build -o meinberg_ltos_exporter .
@@ -26,6 +26,9 @@ release:
 
 test:
 	go test -v ./...
+
+lint:
+	golangci-lint run ./...
 
 clean:
 	@echo "Removing build artifacts, generated files, and test certificates..."
